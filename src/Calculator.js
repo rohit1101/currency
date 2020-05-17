@@ -1,51 +1,60 @@
 import React from "react";
-// import logo from './logo.svg';
-import "./App.css";
-// import { InputEl } from "./InputEl";
+// import "./styles.css";
 
 export class Calculator extends React.Component {
-  state = { value: "", currency: "USD" };
-
-  handleUSDChange = (e) => {
-    this.setState({ value: e.target.value, currency: "USD" });
-  };
+  state = { value: "", currency: "", showOutput: false };
 
   handleINRChange = (e) => {
-    this.setState({ value: e.target.value, currency: "INR" });
+    this.setState({ value: e.target.value });
   };
 
-  usdToInr(usd) {
-    const input = Number(usd);
-    if (isNaN(input)) {
-      return "";
+  conversionMethod(indianVal, currency) {
+    if (currency === "usd") {
+      return (indianVal / 75).toFixed(3);
+    } else if (currency === "euro") {
+      return (indianVal / 85).toFixed(3);
     }
-    const output = parseFloat(input * 75.42);
-    return output.toString();
   }
 
-  inrToUsd(inr) {
-    const input = Number(inr);
-    if (isNaN(input)) {
-      return "";
+  handleClick = (e) => {
+    this.setState((state) => ({ showOutput: !state.showOutput }));
+    if (this.state.currency === "") {
+      alert("Select currency");
     }
-    const output = parseFloat(input * 75.42);
-    return output.toString();
-  }
+
+    if (isNaN(Number(this.state.value))) {
+      alert("Enter a number");
+    }
+  };
 
   render() {
-    const val = this.state.value;
+    const { value: indianVal, currency, showOutput } = this.state;
 
-    const currency = this.state.currency;
-    const ind = currency === "USD" ? this.usdToInr(val) : Number(val);
-    const usd = currency === "INR" ? this.inrToUsd(val) : Number(val);
     return (
       <div>
         <h1>Currency Converter</h1>
-        <label>USD VALUE:</label>
-        <input value={usd} onChange={this.handleUSDChange} />
-        <hr />
         <label>INR VALUE:</label>
-        <input value={ind} onChange={this.handleINRChange} />
+        <input value={indianVal} onChange={this.handleINRChange} />
+
+        <select
+          value={currency}
+          onChange={(e) => this.setState({ currency: e.target.value })}
+        >
+          <option value="">Select Currency</option>
+          <option value="usd">USD</option>
+          <option value="euro">EURO</option>
+        </select>
+
+        <button onClick={this.handleClick}>
+          {this.state.showOutput ? "Clear" : "Submit"}
+        </button>
+
+        {!isNaN(indianVal) && currency && showOutput ? (
+          <p>
+            {indianVal} INR in {currency} is =
+            {this.conversionMethod(indianVal, currency)}
+          </p>
+        ) : null}
       </div>
     );
   }
